@@ -1,0 +1,41 @@
+---
+title: "Linear Regression Refresher"
+subtitle: "BDSI 2024"
+author: "Andy Beck<br>PhD Candidate, Biostatistics"
+institute: "University of Michigan"
+date: "June 20, 2024"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: [default, metropolis, metropolis-fonts]
+    nature:
+      highlightStyle: pygments
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+# Overview
+
+1:30 - 2:45
+
+## Prerequisites
+
+Download repository from my github: https://github.com/theandyb/BDSI24_LinReg
+
+## Topics
+1. Simple Linear Regression
+2. Multiple Linear Regression
+3. Doing the above in R
+
+---
+class: inverse, center, middle
+
+# Simple Linear Regression
+
+---
+
+
