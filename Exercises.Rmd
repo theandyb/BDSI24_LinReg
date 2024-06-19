@@ -1,0 +1,363 @@
+---
+title: "Linear Regression Tutorial"
+date: 2024-06-20
+output: html_document
+---
+
+# Introduction
+
+In these exercises, we will be modeling the prices at which homes were sold in King County, Washington (Seattle, Tacoma, etc) between May 2014 and May 2015. This data set was downloaded from [Kaggle](https://www.kaggle.com/datasets/harlfoxem/housesalesprediction), and is in the file `kc_house_data.csv`. Run the code block below to load this data into a data.frame called `df_home`:
+
+```{r}
+df_home <- read.csv("data/kc_house_data.csv")
+```
+
+Our goal in this exercise is to evaluate how different features of a home influence the `price` for which it sells. With our outcome variable being a numeric quantity, we
+
+Before diving into the meat of this tutorial, it might be helpful to go over a few functions in R that will let you get acquainted with the contents of a data.frame:
+
+-   `head`: print the first 6 rows of a data.frame
+-   `summary`: generate a summary of each variable in the data.frame
+-   `str`: another way to get a quick summary of what kinds of data are in the data.frame
+
+Note: you can pull up documentation by typing `?` followed by the name of the function (e.g.: `?str`) in the R console to pull up documentation for the function. Try this with the head function, and tell me: which paramter would we change to show more or less than the first 6 rows of a data.frame?
+
+Run the following cell to get a quick overview of the types of data in our data.frame:
+
+```{r}
+summary(df_home)
+```
+
+As a last bit of data prep before we dive into linear regression, we're going to re-code the `waterfront` variable as a factor: it's a *dummy variable* which indicates whether or not the property is on a waterfront (0 = no, 1 = yes):
+
+```{r}
+df_home$waterfront <- factor(df_home$waterfront, levels = c(0,1), labels=c("N","Y"))
+
+summary(df_home$waterfront)
+```
+
+We'll also re-code the `zipcode` variable as a categorical variable, since it does not make sense to treat this variable as a numeric value:
+
+```{r}
+df_home$zipcode <- factor(df_home$zipcode)
+
+summary(df_home$zipcode)
+```
+
+Note: there are other variables that could be considered categorical (and in some cases, ordinal) in this data set as well. For now, we'll keep these in the data.frame as numeric values; later, we'll see the consequences of this choice.
+
+## Data Description
+
+Stolen from this [kaggle post](https://www.kaggle.com/datasets/harlfoxem/housesalesprediction/discussion/207885), here are definitions for all our variables:
+
+-   id - Unique ID for each home sold
+-   date - Date of the home sale
+-   price - Price of each home sold
+-   bedrooms - Number of bedrooms
+-   bathrooms - Number of bathrooms, where .5 accounts for a room with a toilet but no shower\
+-   sqft_living - Square footage of the interior living space
+-   sqft_lot - Square footage of the land space
+-   floors - Number of floors
+-   waterfront - A dummy variable for whether the apartment was overlooking the waterfront or not
+-   view - An index from 0 to 4 of how good the view of the property was
+-   condition - An index from 1 to 5 on the condition of the apartment
+-   grade - An index from 1 to 13, where 1-3 falls short of building construction and design, 7 has an average level of construction and design, and 11-13 have a high quality level of construction and design
+-   sqft_above - The square footage of the interior housing space that is above ground level
+-   sqft_basement - The square footage of the interior housing space that is below ground level
+-   yr_built - The year the house was initially built
+-   yr_renovated - The year of the house’s last renovation
+-   zipcode - What zipcode area the house is in
+-   lat - Lattitude
+-   long - Longitude
+-   sqft_living15 - The square footage of interior housing living space for the nearest 15 neighbors
+-   sqft_lot15 - The square footage of the land lots of the nearest 15 neighbors
+
+# Simple Linear Regression
+
+In the following exercises we'll be exploring the influence of individual explanatory variables on the sale price of a home.
+
+## Numeric predictor variables
+
+We will first use linear regression to assess the relationship between the size of the house's interior living space (\`\`)
+
+Before fitting any models, let's make some scatter plots to visually inspect the relationship between these predictors and sale price.
+
+### Exercise 1
+
+Create scatter plots with price on the Y axis, and `sqft_living` on the X-axis
+
+```{r}
+# replace ??? with parameters for the plot function to generate scatter plot of price and living space
+# need help? try typing "?plot" (without quotes) into the R console
+plot(???)
+```
+
+Question: in general, does house price tend to increase with the size of living space? Answer:
+
+### Exercise 2
+
+Using linear regression, evaluate the relationship between `price` and `sqft_living`
+
+```{r}
+model1 <- lm(???, df_home) # replace ??? with a formula to specify our model: price = a + b * sqft_living
+                           # reminder: the format of a formula for simple linear regression is outcome ~ predictor
+```
+
+Print out the summary of the model
+
+```{r}
+???(model1) # replace ??? with the name of the function we use to get a summary of our model results
+```
+
+Q: What is our fitted model: A: price = ??? + ??? x sqft_living
+
+Q: Does the slope have a meaningful interpretation here? Hint: When would a house be predicted to have a price of -43580.743? Does this make sense? A:
+
+Q: Interpret the coefficient for sqft_living. Is a higher sqft_living value associated with a higher price? A:
+
+Finally, we can use the `predict()` function to get fitted values for `price` for given `sqft_living` values:
+
+```{r}
+predict(model1, newdata = data.frame("sqft_living" = 2080), interval="predict")
+```
+
+Q: According to our model, what is the predicted price of a home with 2080 sq ft of living space? A:
+
+### Exercise 3
+
+In this exercise, we'll look at how linear regression models can also be used to evaluate the relationship between a numeric outcome and a categorical predictor. In particular, we will evaluate whether or not the mean sales price of a waterfront property is different from non-waterfront properties.
+
+In your basic stats review lecture, you covered how the t test could be used to compare the means of two groups. We can very much do the same thing for our comparison of the waterfront and non-waterfront properties:
+
+```{r}
+t.test(price ~ waterfront, df_home) # notice how we can use the "formula, data.frame" parameterization for this function
+```
+
+Based on the above t-test, we would conclude that the mean price for waterfront properties is significantly different from the mean price of non-waterfront properties. Would we reach the same conclusion if we used a linear model instead?
+
+First, make a boxplot of prices for both waterfront and non-waterfront properties:
+
+```{r}
+boxplot( ??? ~ ???, df_home) # replace ???s to get a boxplot of price values stratified by waterfront
+                             # hint: formula follows same outcome ~ predictor pattern
+```
+
+Q: Visually, does it look like there is a difference in the distributions of prices between waterfront (1) and non-waterfront (0) properties? A:
+
+Optional: run the following cell to get a numeric summary of the price distributions for both waterfront and non-waterfront properties
+
+```{r}
+tapply(df_home$price, df_home$waterfront, summary)
+```
+
+Now fit the model $\textrm{price} = \beta_0 + beta_1 \times \textrm{waterfront}$ using R's `lm()` function:
+
+```{r}
+model2 <- lm(??? ~ ???, df_home)
+
+summary(model2)
+```
+
+Q: What is our fitted model? A: Price = ? + ? x waterfront
+
+Q: How do we interpret the intercept coefficient? Hint: What price would our model predict for a home not on a waterfront? (waterfront = 0) A:
+
+Q: How do we interpret the waterfront coefficient? A: On average, a house on the waterfront is \_\_\_\_\_\_\_ more/less expensive than one on a non-waterfront property.
+
+Q: How does the t value for the waterfrontY coefficient compare to the t statistic from the t test we ran above? A:
+
+# Multiple Linear Regression
+
+We've previously explored bivariate relationships with simple linear regression. Now we'll expand into models that jointly account for the influence of multiple predictors on our outcome of interest. Reasons we might do this include:
+
+1.  The relationship between our outcome Y and a predictor X may depend on the value of one or more other variables Z which we also have measures for.
+2.  The addition of more covariates as predictors could improve our model's ability to predict our outcome of interest
+
+## Exercise 4
+
+Here in this exercise, our goal is once again to model the relationship between `price` and `sqft_living`. We also know from above that `waterfront` has an influence on `price`; therefore, we might want to check to see what the relationship between `sqft_living` and `price` looks like if we control for `waterfront`
+
+First, fit a multiple linear regression model with `price` as our outcome and `sqft_living` and `waterfront` as predictors:
+
+```{r}
+model3 <- lm(price ~ sqft_living + waterfront, df_home)
+
+summary(model3)
+```
+
+Q: What is the equation for our fitted model? A: price. = ??? + ??? x sqft_living + ??? x waterfront
+
+Q: How does the coefficient for `sqft_living` in model3 compare to what we observed in model1? A:
+
+Q: How does the coefficient for `waterfrontY` in model3 compare to what we observed in model2? A:
+
+Q: Between models 1 - 3, which has the highest Adjusted R-squared value? A:
+
+## Exercise 5
+
+We're going to extend our previous model to allow for an interaction between `sqft_living` and `waterfront`. This will allow for the relationship between `sqft_living` and `price` to differ between the waterfront and non-waterfront properties.
+
+Fit model four with the interaction:
+
+```{r}
+model4 <- lm(price ~ sqft_living*waterfront, data = df_home)
+
+summary(model4)
+```
+
+Q: What is the slope for `sqft_living` for non-waterfront houses? 
+
+A:
+
+Q: What is the slope for `sqft_living` for waterfront houses? 
+
+A:
+
+Q: What is the intercept for non-waterfront houses? 
+
+A:
+
+Q: What is the intercept for waterfront houses? 
+
+A:
+
+Q: Between models 3 and 4, which has the higher Adjusted R-squared value? 
+
+A:
+
+### Aside: mean-centered sqft_living
+
+In our previous models, the intercept term was of little interpretive value, since we don't observe any homes with 0 sqft_living. If we were to mean-center the sqft_living variable first (take the mean value and subtract it from each observation), we'd then have an interpretable intercept, since a value of 0 mean-centered sqft_living would be the mean value in our dataset, so the intercept would be the predicted price of the average sized home.
+
+First, we add another covariate to our `data.frame` with the mean-centered `sqft_living`:
+
+```{r}
+df_home$sqft_living_mc <- df_home$sqft_living - mean(df_home$sqft_living)
+```
+
+Then we fit model 4, but substitute `sqft_living_mc` for `sqft_living`:
+
+```{r}
+model4_v2 <- lm(price ~ sqft_living_mc*waterfront, df_home)
+summary(model4_v2)
+```
+
+Here our intercept of 533,761.47 is the predicted price of a non-waterfront home whose mean-centered sqft_living is 0, i.e., whose sqft_living is equal to the mean sqft_living of our dataset (which is `r mean(df_home$sqft_living)`).
+
+## Exercise 6
+
+In this exercise, we'll expand upon the model we fit in Exercise 5 by considering additional covariates. Some of the options we might consider are:
+
+-   `bedrooms` and `bathrooms`
+-   `floors`
+-   `view`
+-   `condition`
+-   `grade`
+-   `yr_built`
+
+First, choose two of the above covariates and add it to the model we fit in exercise 5 (as an independent variable, let's not add any additional interaction terms for now):
+
+```{r}
+model5 <- lm(price ~ sqft_living*waterfront + ??? + ???, data = df_home)
+
+summary(model5)
+```
+
+Next, let's test the joint null hypothesis that both of the covariates we added have coefficients = 0. We can do this using the `anova` function, since `model4` is nested within `model5`:
+
+```{r}
+anova(model5, model4)
+```
+
+Q: Is there evidence that we should reject the null hyptothese (at a threshold of $\alpha=0.05$)?
+
+A:
+
+Now, choose for model 6, choose a different set of two covariates from the list to add to the model we fit in exercise 5:
+
+```{r}
+model6 <- lm(price ~ sqft_living*waterfront + ??? + ???, data = df_home)
+
+summary(model6)
+```
+
+Q: Can we compare models 5 and 6 using the F-test?
+
+A: 
+
+Q: Between your model 5 and 6, which best fit the data? According to what metric?
+
+Hint: call `summary()` or `AIC()` with your model objects as input. Note: AIC is a metric we seek to minimize.
+
+A:
+
+For our model 7, let's add all seven of the covariates from the list:
+
+```{r}
+model7 <- lm(price ~ sqft_living*waterfront + bedrooms + bathrooms + floors + view + condition + grade + yr_built,
+             data = df_home)
+summary(model7)
+```
+
+Q: How does this model compare to models 5 and 6 with respect to Adjusted R-Squared?
+
+A:
+
+Q: Can we compare this model to model 5 and/or 6 using the F-test? If so, what would the null hypothesis be?
+
+A: 
+
+## Exercise 7
+
+For this final exercise, we're going to explore the concept of multicollinearity. Briefly, multicollinearilty referes to when predictors in your model are correlated with each other. This can result in incorrect inference about the relationship between either variable and the outcome of interest.
+
+In our data set, we have multiple measures regarding the size of the house. Let's look at the relationship between `sqft_living` and `sqft_above` by first creating a scatterplot of the two variables:
+
+```{r}
+plot(???)
+```
+
+And let's also look at the scatterplot of `sqft_above` and `price`:
+
+```{r}
+plot(???)
+```
+
+Now let's see what happens to our model of `price` if we use both `sqft_above` and `sqft_living` as covariates.
+Let's first look at the model: price ~ sqft_above
+
+```{r}
+model7 <- 
+summary(model7)
+```
+
+Q: What is the expected change in price for a 1 unit increase in `sqft_above`?
+
+A:
+
+Now let's look at the model: price ~ sqft_above + sqft_living
+
+```{r}
+model8 <- 
+summary(model8)
+```
+
+Q: After conditioning on `sqft_living`, what is the expected change in price for a 1 unit increase in `sqft_above`?
+
+A:
+
+Q: How does this model compare to the model with only `sqft_living` as a covariate (`model1`)?
+
+```{r}
+# hint: anova for F-test, or AIC() or summary()
+```
+
+A: 
+
+Q: Between `sqft_above` and `sqft_living`, which does a better job of predicting price?
+
+```{r}
+
+```
+
+A: 

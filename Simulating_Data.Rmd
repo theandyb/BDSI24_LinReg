@@ -1,0 +1,31 @@
+---
+title: "Simulating Data"
+date: "2024-06-20"
+output: html_document
+---
+
+Here in this document, we will explore how simulation can help us to better understand the behavior of linear regression.
+
+```{r}
+library(tidyverse)
+```
+
+# Simple Linear Regression Example
+
+```{r}
+set.seed(1235)
+df <- data.frame(X = rnorm(25, 5, 2.3))
+df$Y <- 1.2 + 2.3 * df$X + rnorm(25, 0, 2)
+
+plot(df$X,df$Y)
+
+mod_result <- lm(Y ~ X, df)
+mod_result
+summary(mod_result)
+
+predict(mod_result, df)
+
+plot(df$X, df$Y)
+abline(mod_result)
+```
+

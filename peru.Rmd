@@ -1,0 +1,133 @@
+---
+title: "Peruvian Blood Pressure"
+author: "Andy Beck"
+date: "2024-06-19"
+output: html_document
+---
+
+# install.packages("tidyverse")
+
+```{r}
+library(tidyverse)
+
+df_peru <- read_tsv("https://online.stat.psu.edu/stat462/sites/onlinecourses.science.psu.edu.stat462/files/data/peru/index.txt")
+names(df_peru)
+
+# Compute fraction of life at lower altitude
+df_peru$frac_life <- df_peru$Years / df_peru$Age
+```
+
+### Some exploratory data analysis
+
+#### Scatterplots of Diastolic BP against our set of predictors
+
+```{r}
+df_peru %>%
+  ggplot(aes(x = Systol, y = Age)) +
+  geom_point() +
+  ggtitle("Age and Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = Weight)) +
+  geom_point() +
+  ggtitle("Weight and Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = Height)) +
+  geom_point() +
+  ggtitle("Height and Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = Chin)) +
+  geom_point() +
+  ggtitle("Chin and Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = Forearm)) +
+  geom_point() +
+  ggtitle("Forearm and Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = Calf)) +
+  geom_point() +
+  ggtitle("Calf and Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = Pulse)) +
+  geom_point() +
+  ggtitle("Pulse and Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = frac_life)) +
+  geom_point() +
+  ggtitle("Fraction of Life in Urban Env. and\n Systolic Blood Pressure")
+
+df_peru %>%
+  ggplot(aes(x = Systol, y = Years)) +
+  geom_point() +
+  ggtitle("Years in Urban Env. and\n Systolic Blood Pressure")
+```
+
+
+### Model with all available covariates
+
+```{r}
+mod_big <- lm(Systol ~ ., data = df_peru)
+# equivalent: mod_big <- glm(Systol ~ ., data = df_peru, family = gaussian())
+
+summary(mod_big)
+```
+
+### Fit a reduced model
+
+Here we'll remove parameters which were not significant in full model
+We'll then test the hypothesis that all these betas are zero using F test
+
+```{r}
+mod_red <- lm(Systol ~ Age + Years + Weight + frac_life, data = df_peru)
+
+anova(mod_red, mod_big)
+
+
+summary(mod_red)
+
+predict(mod_red,
+        newdata = data.frame(Age = 32,
+                             Years = 3,
+                             frac_life = 3/32,
+                             Weight = 68))
+
+df_peru$fit <- predict(mod_red, newdata = df_peru)
+df_peru$res <- resid(mod_red)
+```
+
+### Evaluate model assumptions
+
+```{r}
+df_peru %>%
+  ggplot(aes(x = fit, y = res)) +
+  geom_point() +
+  ggtitle("Fitted Values and Residuals")
+
+df_peru %>%
+  ggplot(aes(x = Age, y = res)) +
+  geom_point() +
+  ggtitle("Age and Residuals")
+
+df_peru %>%
+  ggplot(aes(x = Years, y = res)) +
+  geom_point() +
+  ggtitle("Years and Residuals")
+
+df_peru %>%
+  ggplot(aes(x = Weight, y = res)) +
+  geom_point() +
+  ggtitle("Weight and Residuals")
+
+df_peru %>%
+  ggplot(aes(x = frac_life, y = res)) +
+  geom_point() +
+  ggtitle("Frac_life and Residuals")
+
+qqnorm(df_peru$res)
+```
