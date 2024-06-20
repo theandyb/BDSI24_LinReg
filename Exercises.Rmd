@@ -12,7 +12,7 @@ In these exercises, we will be modeling the prices at which homes were sold in K
 df_home <- read.csv("data/kc_house_data.csv")
 ```
 
-Our goal in this exercise is to evaluate how different features of a home influence the `price` for which it sells. With our outcome variable being a numeric quantity, we
+Our goal in this exercise is to evaluate how different features of a home influence the `price` for which it sells. With our outcome variable being a numeric quantity, we have linear regression as one tool which we can utilize to explore the relationships between price and other covariates.
 
 Before diving into the meat of this tutorial, it might be helpful to go over a few functions in R that will let you get acquainted with the contents of a data.frame:
 
@@ -76,13 +76,11 @@ Stolen from this [kaggle post](https://www.kaggle.com/datasets/harlfoxem/housesa
 
 In the following exercises we'll be exploring the influence of individual explanatory variables on the sale price of a home.
 
-## Numeric predictor variables
-
-We will first use linear regression to assess the relationship between the size of the house's interior living space (\`\`)
+We will first use linear regression to assess the relationship between the size of the house's interior living space (`sqft_living`).
 
 Before fitting any models, let's make some scatter plots to visually inspect the relationship between these predictors and sale price.
 
-### Exercise 1
+## Exercise 1
 
 Create scatter plots with price on the Y axis, and `sqft_living` on the X-axis
 
@@ -92,9 +90,11 @@ Create scatter plots with price on the Y axis, and `sqft_living` on the X-axis
 plot(???)
 ```
 
-Question: in general, does house price tend to increase with the size of living space? Answer:
+Q: in general, does house price tend to increase with the size of living space? 
 
-### Exercise 2
+A:
+
+## Exercise 2
 
 Using linear regression, evaluate the relationship between `price` and `sqft_living`
 
@@ -109,21 +109,45 @@ Print out the summary of the model
 ???(model1) # replace ??? with the name of the function we use to get a summary of our model results
 ```
 
-Q: What is our fitted model: A: price = ??? + ??? x sqft_living
+Q: What is our fitted model: 
 
-Q: Does the slope have a meaningful interpretation here? Hint: When would a house be predicted to have a price of -43580.743? Does this make sense? A:
+A: price = ??? + ??? x sqft_living
 
-Q: Interpret the coefficient for sqft_living. Is a higher sqft_living value associated with a higher price? A:
+Q: Does the slope have a meaningful interpretation here? Hint: When would a house be predicted to have a price of -43580.743? Does this make sense? 
+
+A:
+
+Q: Interpret the coefficient for sqft_living. Is a higher sqft_living value associated with a higher price? 
+
+A:
+
+### Plot diagnostic plots
+
+We won't focus too much on interpreting these plots, but R makes it easy to generate diagnostic plots which allow us to check for violations of our model assumptions.
+
+One way to do this is to simply pass our model object into the `plot()` function. This will generate four plots, but only one at a time, requiring you to hit <enter> into the console to move onto the next figure. A trick we can use here (and whenever we'd like to plot more than one figure in a single image) is to run the command `par(mfrow=c(2,2))` before running plot on our linear regression object. This tells R that we're going to be giving it four figures, and to lay them out in a 2x2 grid. After we make our image, we then need to tell R to return to its default behavior (one figure per image) by running the command `par(mfrow=c(1,1))`.
+
+```{r}
+par(mfrow=c(2,2))
+
+# to do: plot your model object here!
+
+par(mfrow=c(1,1))
+```
+
+### Use the predict function
 
 Finally, we can use the `predict()` function to get fitted values for `price` for given `sqft_living` values:
 
 ```{r}
-predict(model1, newdata = data.frame("sqft_living" = 2080), interval="predict")
+predict(model1, newdata = data.frame("sqft_living" = ???), interval="predict")
 ```
 
-Q: According to our model, what is the predicted price of a home with 2080 sq ft of living space? A:
+Q: According to our model, what is the predicted price of a home with 2080 sq ft of living space? 
 
-### Exercise 3
+A:
+
+## Exercise 3
 
 In this exercise, we'll look at how linear regression models can also be used to evaluate the relationship between a numeric outcome and a categorical predictor. In particular, we will evaluate whether or not the mean sales price of a waterfront property is different from non-waterfront properties.
 
@@ -142,7 +166,9 @@ boxplot( ??? ~ ???, df_home) # replace ???s to get a boxplot of price values str
                              # hint: formula follows same outcome ~ predictor pattern
 ```
 
-Q: Visually, does it look like there is a difference in the distributions of prices between waterfront (1) and non-waterfront (0) properties? A:
+Q: Visually, does it look like there is a difference in the distributions of prices between waterfront (1) and non-waterfront (0) properties? 
+
+A:
 
 Optional: run the following cell to get a numeric summary of the price distributions for both waterfront and non-waterfront properties
 
@@ -158,13 +184,21 @@ model2 <- lm(??? ~ ???, df_home)
 summary(model2)
 ```
 
-Q: What is our fitted model? A: Price = ? + ? x waterfront
+Q: What is our fitted model? 
 
-Q: How do we interpret the intercept coefficient? Hint: What price would our model predict for a home not on a waterfront? (waterfront = 0) A:
+A: Price = ? + ? x waterfront
 
-Q: How do we interpret the waterfront coefficient? A: On average, a house on the waterfront is \_\_\_\_\_\_\_ more/less expensive than one on a non-waterfront property.
+Q: How do we interpret the intercept coefficient? Hint: What price would our model predict for a home not on a waterfront? (waterfront = 0) 
 
-Q: How does the t value for the waterfrontY coefficient compare to the t statistic from the t test we ran above? A:
+A:
+
+Q: How do we interpret the waterfront coefficient? 
+
+A: On average, a house on the waterfront is ????? more/less expensive than one on a non-waterfront property.
+
+Q: How does the t value for the waterfrontY coefficient compare to the t statistic from the t test we ran above? 
+
+A:
 
 # Multiple Linear Regression
 
@@ -185,22 +219,45 @@ model3 <- lm(price ~ sqft_living + waterfront, df_home)
 summary(model3)
 ```
 
-Q: What is the equation for our fitted model? A: price. = ??? + ??? x sqft_living + ??? x waterfront
+Q: What is the equation for our fitted model? 
 
-Q: How does the coefficient for `sqft_living` in model3 compare to what we observed in model1? A:
+A: price. = ??? + ??? x sqft_living + ??? x waterfront
 
-Q: How does the coefficient for `waterfrontY` in model3 compare to what we observed in model2? A:
+Q: How does the coefficient for `sqft_living` in model3 compare to what we observed in model1? 
 
-Q: Between models 1 - 3, which has the highest Adjusted R-squared value? A:
+A:
+
+Q: How does the coefficient for `waterfrontY` in model3 compare to what we observed in model2? 
+
+A:
+
+Q: Between models 1 - 3, which has the highest Adjusted R-squared value? 
+
+A:
+
+### Diagnostic plots
+
+Again, while we're not going into too much detail on how to read these plots, in general for any kind of statistical modeling it's generally good practice to be mindful of and check whatever assumptions you're making.
+
+```{r}
+par(mfrow = c(?,?))
+
+plot(???)
+
+par(mfrow=c(1,1))
+```
+
 
 ## Exercise 5
 
-We're going to extend our previous model to allow for an interaction between `sqft_living` and `waterfront`. This will allow for the relationship between `sqft_living` and `price` to differ between the waterfront and non-waterfront properties.
+We're going to extend our previous model to allow for an interaction between `sqft_living` and `waterfront`. This will allow for the relationship between `sqft_living` and `price` to differ between the waterfront and non-waterfront properties. To do so, we can use the formula shorthand `outcome ~ x1 * x2` to fit the model $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2$
 
 Fit model four with the interaction:
 
 ```{r}
-model4 <- lm(price ~ sqft_living*waterfront, data = df_home)
+# reminder: we use `+` when adding independent terms; `*` is shorthand that allows us to say 
+# we want both the covariates and the interaction between them to be in the model
+model4 <- lm(price ~ ??? , data = df_home)
 
 summary(model4)
 ```
@@ -361,3 +418,31 @@ Q: Between `sqft_above` and `sqft_living`, which does a better job of predicting
 ```
 
 A: 
+
+## Exercise 8
+
+The exercises above were very structured, in that you were guided along the way towards fitting partiicular models. For this final exercise, all that I'm going to tell you is that the `df_home` data.frame only contains ~75% of the original data. Below we load the latter ~25:
+
+```{r}
+df_home_new <- read_csv("data/kc_house_data_2.csv")
+```
+
+But by some stroke of bad luck, the price column has seemingly disappeared! 
+
+```{r}
+names(df_home_new)
+```
+
+Your task is to build a model for price using `df_home`, and then use the `predict` function to predict the price column for `df_home_new`. Once you've added a `price` column to `df_home_new` data.frame, run the final cell to check how well you did (for a benchmark, model4 should have a mean absolute prediction error around ~170022).
+
+```{r}
+# to do: build a model, and then df_home_new$price <- predict(obj, newdata = df_home_new)
+```
+
+
+```{r}
+mean_abs_err <- sum(abs(df_home_new$price - scan("data/test_price.csv"))) / length(df_home_new$id)
+
+print(paste0("Mean absolute prediction error: ", mean_abs_err))
+```
+
